@@ -68,6 +68,24 @@ class Test_ScriptHandler(object):
         assert result['handler'].failed is False
         assert not doc.roots
 
+    def test_runner_script_with_windows_encoding(self):
+        '''this test should fail under Windows as
+        python resorts to cp1252 encoding'''
+        doc = Document()
+        source = "# print('►')" # ► is not in cp1252 charmap
+        result = {}
+        def load(filename):
+            handler = bahs.ScriptHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+        with_file_contents(source, load)
+
+        assert result['handler'].error is None
+        assert result['handler'].failed is False
+        assert not doc.roots
+
+
     def test_missing_filename_raises(self):
         with pytest.raises(ValueError):
             bahs.ScriptHandler()
